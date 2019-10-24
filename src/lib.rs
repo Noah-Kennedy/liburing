@@ -78,8 +78,8 @@ pub unsafe fn io_uring_cqe_get_data(cqe: *mut io_uring_cqe) -> *mut c_void {
     return (*cqe).user_data as *mut c_void;
 }
 
-pub unsafe fn io_uring_sqe_set_flags(sqe: *mut io_uring_sqe, flags: u8) {
-    (*sqe).flags = flags;
+pub unsafe fn io_uring_sqe_set_flags(sqe: *mut io_uring_sqe, flags: c_uint) {
+    (*sqe).flags = flags as u8;
 }
 
 pub unsafe fn io_uring_prep_rw(
@@ -343,7 +343,7 @@ mod tests {
         }
 
         let mut cqe: *mut io_uring_cqe = unsafe { std::mem::zeroed() };
-        let mut done = 0;
+        // let mut done = 0;
         let pending = ret;
         for _ in 0..pending {
             let ret = unsafe { io_uring_wait_cqe(&mut ring, &mut cqe) };
@@ -353,13 +353,14 @@ mod tests {
                     Error::from_raw_os_error(ret)
                 );
             }
-            done += 1;
+            // done += 1;
             if unsafe { (*cqe).res } < 0 {
                 eprintln!("(*cqe).res = {}", unsafe { (*cqe).res });
             }
             unsafe { io_uring_cqe_seen(&mut ring, cqe) };
         }
-        println!("Submitted={}, completed={}", pending, done);
+
+        // println!("Submitted={}, completed={}", pending, done);
         unsafe { io_uring_queue_exit(&mut ring) };
     }
 }

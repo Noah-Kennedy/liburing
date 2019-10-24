@@ -59,19 +59,20 @@ fn test_io_uring_read_file() {
     }
 
     let mut cqe: *mut io_uring_cqe = unsafe { std::mem::zeroed() };
-    let mut done = 0;
+    // let mut done = 0;
     let pending = ret;
     for _ in 0..pending {
         let ret = unsafe { io_uring_wait_cqe(&mut ring, &mut cqe) };
         if ret < 0 {
             panic!("io_uring_wait_cqe: {:?}", Error::from_raw_os_error(ret));
         }
-        done += 1;
+        // done += 1;
         if unsafe { (*cqe).res } != READ_SIZE as i32 {
             eprintln!("(*cqe).res = {}", unsafe { (*cqe).res });
         }
         unsafe { io_uring_cqe_seen(&mut ring, cqe) };
     }
-    println!("Submitted={}, completed={}", pending, done);
+
+    // println!("Submitted={}, completed={}", pending, done);
     unsafe { io_uring_queue_exit(&mut ring) };
 }
